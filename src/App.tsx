@@ -27,7 +27,7 @@ function App() {
       <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50'} flex items-center justify-center`}>
         <div className="text-center space-y-4">
           <div className={`w-16 h-16 border-4 ${darkMode ? 'border-blue-500' : 'border-blue-600'} border-t-transparent rounded-full animate-spin mx-auto`} />
-          <p className={`${darkMode ? 'text-slate-300' : 'text-gray-700'} font-body text-lg`}>Loading venue...</p>
+          <p className={`${darkMode ? 'text-slate-300' : 'text-gray-700'} font-body text-lg`}>Loading AISEO venue...</p>
         </div>
       </div>
     );

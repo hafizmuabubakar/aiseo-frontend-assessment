@@ -1,6 +1,6 @@
 {
   "venueId": "arena-01",
-  "name": "Metropolis Arena",
+  "name": "AISEO Arena",
   "map": { "width": 1024, "height": 768 },
   "sections": [
     {
