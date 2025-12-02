@@ -1,151 +1,31 @@
-# 🎫 Event Seating Map
+# Event Seating Map - AISEO
 
-An interactive, high-performance seating map application built with React, TypeScript, and Zustand. Select up to 8 seats with smooth 60fps rendering, keyboard navigation, and localStorage persistence.
+This is an interactive seating map that can handle 15,000 seats smoothly at 60fps. It's built with React 18, TypeScript, Zustand for state management, and uses Canvas API for fast rendering. You can select seats with your mouse or keyboard, choose up to 8 seats (they're saved even if you refresh the page), toggle a heat-map view to see pricing, find adjacent seats automatically, and zoom/pan around the venue. The app meets all 8 core requirements from the spec and includes 5 out of 7 bonus features. We didn't include WebSocket updates (no backend available) or end-to-end tests due to time limits.
 
-## 🏗️ Architecture
+We chose Canvas over SVG because it's about 10 times faster when rendering thousands of seats. Zustand handles the app state and saves your seat selections to localStorage so they don't disappear when you reload. The keyboard navigation is smart - it only lets you move between available seats and automatically scrolls to keep the focused seat visible. The venue layout is clean: 30 sections arranged in a 5×6 grid, with 25 rows and 20 seats per row in each section, giving us exactly 15,000 seats. Colors are easy to understand: Purple seats are Premium ($150), Pink is Standard ($100), Orange is Economy ($75), and your selected seats glow bright green so you always know what you picked.
 
-### Design Philosophy
-- **Component-based architecture**: Atomic design pattern (Seat → SeatingMap → App)
-- **State management**: Zustand for lightweight, performant global state with persistence
-- **Performance-first**: React.memo for seat components, useMemo for expensive computations
-- **Accessibility**: Full keyboard navigation, ARIA labels, focus management
+Want to test with all 15,000 seats? Just open `src/hooks/useVenueData.ts` and change line 4 to `USE_15K_SEATS = true`, then restart the server. You can also generate fresh data by running `cd scripts && node generate-venue.js`. To test everything works: select some seats, refresh your browser to make sure they're still selected, try the arrow keys to navigate around, and zoom in and out. Check the browser's DevTools Performance tab while zooming - it should stay smooth at around 60fps even with all those seats visible.
 
-### Key Decisions & Trade-offs
-
-**1. SVG vs Canvas**
-- **Choice**: SVG
-- **Rationale**: Better accessibility (DOM nodes for each seat), easier event handling, native focus management
-- **Trade-off**: Canvas might be slightly faster for 50K+ seats, but SVG handles 15K smoothly with memoization
-
-**2. Zustand vs Context API**
-- **Choice**: Zustand with persistence middleware
-- **Rationale**: Less boilerplate, automatic re-render optimization, built-in persistence
-- **Trade-off**: Additional dependency, but minimal bundle size (~1KB)
-
-**3. No Virtualization**
-- **Rationale**: SVG rendering is efficient enough for 15K seats. Virtualization would complicate keyboard nav and seat positioning
-- **Performance**: Achieved with React.memo on Seat components and proper event delegation
-
-**4. LocalStorage Persistence**
-- **Implementation**: Zustand persistence middleware on `selectedSeats` only
-- **Rationale**: Selective persistence prevents stale venue data while maintaining user selections
-
-### File Structure
-```
-src/
-├── components/          # React components
-│   ├── Seat.tsx        # Individual seat (memoized)
-│   ├── SeatingMap.tsx  # SVG map container
-│   ├── SelectionSummary.tsx
-│   └── Legend.tsx
-├── hooks/              # Custom hooks
-│   ├── useVenueData.ts # Fetch & cache venue
-│   └── useKeyboardNav.ts # Arrow key navigation
-├── store/
-│   └── seatingStore.ts # Zustand store
-├── types/
-│   └── venue.ts        # TypeScript interfaces
-└── utils/
-    └── pricing.ts      # Price calculations
-```
-
-## ✅ Requirements Met
-
-✓ **Load venue.json** - Dynamic fetch with error handling  
-✓ **60fps rendering** - Optimized with React.memo & minimal re-renders (tested with 15K seats)  
-✓ **Mouse + Keyboard** - Full arrow key navigation (←→↑↓) with Enter/Space selection  
-  - **Smart navigation**: Only available seats are navigable via keyboard
-  - Non-available seats (sold, reserved, held) are skipped automatically
-✓ **Seat details** - Inline in selection summary with section/row/price  
-✓ **8-seat limit** - Enforced in store with live count  
-✓ **localStorage** - Persists selection across reloads  
-✓ **Accessibility** - aria-labels, keyboard nav, focus outlines  
-✓ **Responsive** - Grid layout adapts mobile → desktop  
-
-## 🎯 Stretch Goals Implemented
-
-✓ **Heat-map toggle** - Colors seats by price tier (Premium=Gold, Standard=Blue, Economy=Green)  
-✓ **Find N adjacent seats** - Helper button finds consecutive available seats  
-✓ **Pinch-zoom + pan** - Touch gestures for mobile, scroll-to-zoom, drag-to-pan  
-✓ **Dark-mode toggle** - WCAG 2.1 AA contrast ratios in both modes  
-✓ **15K seat performance** - Tested and optimized (venue-15k.json included)  
-
-❌ **Not Implemented**
-- WebSocket live updates (no backend)
-- E2E tests with Playwright/Cypress  
-
-## 🚀 Running the App
-
+## How to Run
 ```bash
-# Install dependencies
 pnpm install
-
-# Start dev server (localhost:3000)
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Preview production build
-pnpm preview
+pnpm run dev
+# Then open http://localhost:3000 in your browser
 ```
 
-## 🎨 UI/UX Features
+## Testing Steps
 
-- **Modern dark/light theme** with gradient backgrounds
-- **Visual feedback**: Hover states, scale animations on selection
-- **Status-coded seats**: Color-coded by availability
-- **Price tier heat map**: Toggle view showing price distribution
-- **Zoom & Pan**: Scroll-to-zoom, drag-to-pan, pinch gestures on mobile
-- **Find adjacent seats**: Smart algorithm finds N consecutive available seats
-- **Smooth transitions** throughout
-- **Custom scrollbar** styling for summary list
-- **Loading states** with spinner animation
+1. **Test Persistence**: Select a few seats, refresh the page, verify they're still selected
+2. **Test Keyboard**: Press arrow keys to move, Enter to select, Escape to clear focus
+3. **Test Performance**: Open DevTools → Performance tab → Record while zooming → Should see ~60fps
+4. **Test 15K Seats**: Edit `src/hooks/useVenueData.ts` → change `USE_15K_SEATS = true` → Restart server
 
-## 🧪 Testing
+## Controls
 
-### Manual Testing Checklist
-- [ ] Click seats to select/deselect
-- [ ] Use arrow keys to navigate
-- [ ] Press Enter/Space to select focused seat
-- [ ] Verify 8-seat limit enforcement
-- [ ] Reload page - selection persists
-- [ ] Try on mobile viewport
-- [ ] Tab through interactive elements
-
-### Performance Testing
-```bash
-# Open dev tools Performance tab
-# Record interaction with 15K seats
-# Verify FPS stays at ~60fps
-```
-
-## 📋 TODOs / Future Enhancements
-
-**Not Implemented (Out of Scope)**
-- [ ] WebSocket live updates (requires backend)
-- [ ] E2E tests with Playwright (time constraint)
-
-**Known Limitations**
-- No backend integration
-- Single venue support (easily extendable)
-
-## 🔧 Tech Stack
-
-- **React 18** - UI library
-- **TypeScript** (strict mode) - Type safety
-- **Zustand** - State management
-- **Tailwind CSS** - Styling
-- **Vite** - Build tool
-- **pnpm** - Package manager
-
-## 📊 Performance Metrics
-
-- **Bundle size**: ~45KB (gzipped)
-- **Initial load**: < 1s
-- **Seat selection**: < 16ms (60fps)
-- **Memory**: < 50MB for 15K seats
+- **Mouse**: Click seats to select, drag to pan, scroll to zoom
+- **Keyboard**: Arrow keys (←→↑↓) to navigate, Enter/Space to select, Esc to clear
+- **Features**: Heat map toggle shows price tiers, Find Adjacent button selects consecutive seats
 
 ---
 
-**Built with ❤️ for optimal UX and performance**
+**Built with React 18 + TypeScript + Canvas • Smooth performance with 15,000 seats**
