@@ -73,38 +73,64 @@ export const SeatingMap = ({ venue, heatMapEnabled = false }: SeatingMapProps) =
   }, []);
 
   // Auto-pan to focused seat
-  const panToSeat = useCallback((seatX: number, seatY: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // const panToSeat = useCallback((seatX: number, seatY: number) => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const viewWidth = venue.map.width / zoom;
-    const viewHeight = venue.map.height / zoom;
+  //   const rect = canvas.getBoundingClientRect();
+  //   const viewWidth = venue.map.width / zoom;
+  //   const viewHeight = venue.map.height / zoom;
     
-    // Calculate where the seat currently is in viewport
-    const centerX = venue.map.width / 2;
-    const centerY = venue.map.height / 2;
-    const viewX = centerX - viewWidth / 2 - pan.x / zoom;
-    const viewY = centerY - viewHeight / 2 - pan.y / zoom;
+  //   // Calculate where the seat currently is in viewport
+  //   const centerX = venue.map.width / 2;
+  //   const centerY = venue.map.height / 2;
+  //   const viewX = centerX - viewWidth / 2 - pan.x / zoom;
+  //   const viewY = centerY - viewHeight / 2 - pan.y / zoom;
     
-    const seatViewX = (seatX - viewX) / viewWidth;
-    const seatViewY = (seatY - viewY) / viewHeight;
+  //   const seatViewX = (seatX - viewX) / viewWidth;
+  //   const seatViewY = (seatY - viewY) / viewHeight;
     
-    // If seat is outside comfortable view (20%-80%), pan to center it
-    const margin = 0.2;
-    if (seatViewX < margin || seatViewX > 1 - margin || 
-        seatViewY < margin || seatViewY > 1 - margin) {
+  //   // If seat is outside comfortable view (20%-80%), pan to center it
+  //   const margin = 0.2;
+  //   if (seatViewX < margin || seatViewX > 1 - margin || 
+  //       seatViewY < margin || seatViewY > 1 - margin) {
       
-      // Calculate new pan to center the seat
-      const targetViewX = centerX - viewWidth / 2;
-      const targetViewY = centerY - viewHeight / 2;
+  //     // Calculate new pan to center the seat
+  //     const targetViewX = centerX - viewWidth / 2;
+  //     const targetViewY = centerY - viewHeight / 2;
       
-      setPan({
-        x: -(seatX - centerX) * zoom,
-        y: -(seatY - centerY) * zoom,
-      });
-    }
-  }, [venue.map.width, venue.map.height, zoom, pan]);
+  //     setPan({
+  //       x: -(seatX - centerX) * zoom,
+  //       y: -(seatY - centerY) * zoom,
+  //     });
+  //   }
+  // }, [venue.map.width, venue.map.height, zoom, pan]);
+
+  const panToSeat = useCallback((seatX: number, seatY: number) => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+
+  const viewWidth = venue.map.width / zoom;
+  const viewHeight = venue.map.height / zoom;
+  
+  const centerX = venue.map.width / 2;
+  const centerY = venue.map.height / 2;
+  const viewX = centerX - viewWidth / 2 - pan.x / zoom;
+  const viewY = centerY - viewHeight / 2 - pan.y / zoom;
+  
+  const seatViewX = (seatX - viewX) / viewWidth;
+  const seatViewY = (seatY - viewY) / viewHeight;
+  
+  const margin = 0.2;
+  if (seatViewX < margin || seatViewX > 1 - margin || 
+      seatViewY < margin || seatViewY > 1 - margin) {
+    
+    setPan({
+      x: -(seatX - centerX) * zoom,
+      y: -(seatY - centerY) * zoom,
+    });
+  }
+}, [venue.map.width, venue.map.height, zoom, pan]);
 
   // Canvas draw function
   const draw = useCallback(() => {
